@@ -30,13 +30,22 @@ public class Player : MonoBehaviour
 	    //// ------  Movement  ---------- /////////
         targetSpeed.x = Input.GetAxis("Horizontal");
         targetSpeed.y = Input.GetAxis("Vertical");
-	    targetSpeed = targetSpeed.normalized*speed * Time.deltaTime;
+	    //targetSpeed = targetSpeed.normalized*speed * Time.deltaTime;
+
+        
+        if(targetSpeed.sqrMagnitude > 1)
+            targetSpeed.Normalize();
+
+        targetSpeed *= speed * Time.deltaTime;
+
 
 	    currentSpeed.x = Accelerate(currentSpeed.x, targetSpeed.x, acceleration);
         currentSpeed.y = Accelerate(currentSpeed.y, targetSpeed.y, acceleration);
         transform.Translate(new Vector3(currentSpeed.x, 0, currentSpeed.y));
+
+
         //---------------------------------------------------
-        
+        //Debug.Log(currentSpeed.x);
 
         //// --------- Head Look At Mouse Cursor ------ /////////
 	    ray = Camera.main.ScreenPointToRay(Input.mousePosition);
