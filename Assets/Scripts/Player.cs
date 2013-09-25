@@ -13,11 +13,13 @@ public class Player : MonoBehaviour
     private Vector2 currentSpeed;
     private Vector2 targetSpeed;
 
+    //Head LookAt Variables
     public GameObject head;
     public float lookSpeed;
     private Quaternion DesiredLookAt;
     private Ray ray;
 
+    
 
 	void Start () 
     {
@@ -30,22 +32,17 @@ public class Player : MonoBehaviour
 	    //// ------  Movement  ---------- /////////
         targetSpeed.x = Input.GetAxis("Horizontal");
         targetSpeed.y = Input.GetAxis("Vertical");
-	    //targetSpeed = targetSpeed.normalized*speed * Time.deltaTime;
-
-        
+	    
         if(targetSpeed.sqrMagnitude > 1)
             targetSpeed.Normalize();
 
         targetSpeed *= speed * Time.deltaTime;
-
-
+        
 	    currentSpeed.x = Accelerate(currentSpeed.x, targetSpeed.x, acceleration);
         currentSpeed.y = Accelerate(currentSpeed.y, targetSpeed.y, acceleration);
         transform.Translate(new Vector3(currentSpeed.x, 0, currentSpeed.y));
-
-
         //---------------------------------------------------
-        //Debug.Log(currentSpeed.x);
+        
 
         //// --------- Head Look At Mouse Cursor ------ /////////
 	    ray = Camera.main.ScreenPointToRay(Input.mousePosition);
@@ -58,21 +55,13 @@ public class Player : MonoBehaviour
             head.transform.eulerAngles = new Vector3(0, head.transform.eulerAngles.y, 0);
 	    }
         //---------------------------------------------
+        
 	}
 
 
     // Increments the speed towards desired speed by acceleration amount
     float Accelerate(float n, float target, float speed)
     {
-        /*
-        if (n == target)
-            return n;
-        else
-        {
-            n = Mathf.Lerp(n, target, speed);
-            return n;
-        }
-        */
         if (n == target)
         {
             return n;
@@ -84,4 +73,6 @@ public class Player : MonoBehaviour
             return (dir == Mathf.Sign(target - n)) ? n : target;
         }
     }
+
+
 }
