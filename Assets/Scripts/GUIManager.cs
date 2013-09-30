@@ -9,13 +9,17 @@ public class GUIManager : MonoBehaviour
     public UILabel portText;
     public UILabel playerNameText;
 
+    public UITweener HostGameTween;
+    public UITweener JoinGameTween;
+    public UITweener MainMenuTween;
+    
     public GameObject[] menuPanels;
 
     void Start () 
     {
 	    // Load Main Menu at start
-        reset();
-        MainMenu();
+        //reset();
+        //MainMenu();
 
         // Load last used inputs from registry.
         serverNameText.text = PlayerPrefs.GetString("serverName");
@@ -30,31 +34,41 @@ public class GUIManager : MonoBehaviour
 	}
 
 
-
+    
     // Button functions for menu transitions
     void MainMenu()
     {
-        reset();
-        menuPanels[0].active = true;
+        //reset();
+        //menuPanels[0].active = true;
     }
 
+    // Host A Game button
     void HostGame()
     {
         reset();
-        menuPanels[1].active = true;
+        menuPanels[2].active = false;
+        MainMenuTween.Play(true);
     }
 
-    void JoinAGame()
+    void BackToMainMenu()
+    {
+        MainMenuTween.Play(false);
+    }
+
+    // Join a Game button
+    void JoinGame()
     {
         reset();
-        menuPanels[2].active = true;
+        menuPanels[1].active = false;
+        MainMenuTween.Play(true);
     }
 
+    // Sets all panel.active to true.
     void reset()
     {
         for (int i = 0; i < menuPanels.Length; i++)
         {
-            menuPanels[i].active = false;
+            menuPanels[i].active = true;
         }
     }
 }
