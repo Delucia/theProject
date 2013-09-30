@@ -57,8 +57,7 @@ public class Player : MonoBehaviour
         //---------------------------------------------
         
 	}
-
-
+    
     // Increments the speed towards desired speed by acceleration amount
     float Accelerate(float n, float target, float speed)
     {

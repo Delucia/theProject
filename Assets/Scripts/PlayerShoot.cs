@@ -14,16 +14,14 @@ public class PlayerShoot : MonoBehaviour {
 	
 	void Update () 
     {
-	    
-        // To delay the guns randomly
+	    // To delay the guns randomly
         if (Input.GetMouseButtonDown(0))
 	    {
-	        for (int i = 0; i <= 3; i++)
+	        for (int i = 0; i < gunSpots.Length; i++)
 	        {
 	            float tempRandom = Random.Range(0f, 1.2f);
 	            float n = i + tempRandom;
 	            nextShootTime[i] = Time.time + n/10;
-                //Debug.Log(n/10);
 	        }
         }
         
