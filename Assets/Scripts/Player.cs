@@ -19,6 +19,9 @@ public class Player : MonoBehaviour
     private Quaternion DesiredLookAt;
     private Ray ray;
 
+    // Network
+    private Quaternion lastRotation;
+    private Vector3 lastPosition;
     
 
 	void Start () 
@@ -29,33 +32,57 @@ public class Player : MonoBehaviour
 	
 	void Update ()
 	{
-	    //// ------  Movement  ---------- /////////
-        targetSpeed.x = Input.GetAxis("Horizontal");
-        targetSpeed.y = Input.GetAxis("Vertical");
-	    
-        if(targetSpeed.sqrMagnitude > 1)
-            targetSpeed.Normalize();
-
-        targetSpeed *= speed * Time.deltaTime;
-        
-	    currentSpeed.x = Accelerate(currentSpeed.x, targetSpeed.x, acceleration);
-        currentSpeed.y = Accelerate(currentSpeed.y, targetSpeed.y, acceleration);
-        transform.Translate(new Vector3(currentSpeed.x, 0, currentSpeed.y));
-        //---------------------------------------------------
-        
-
-        //// --------- Head Look At Mouse Cursor ------ /////////
-	    ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-	    RaycastHit hit;
-
-	    if (Physics.Raycast(ray, out hit))
+	    if (networkView.isMine)
 	    {
-	        DesiredLookAt = Quaternion.LookRotation(hit.point - transform.position);
-	        head.transform.rotation = Quaternion.Lerp(head.transform.rotation, DesiredLookAt, lookSpeed * Time.deltaTime);
-            head.transform.eulerAngles = new Vector3(0, head.transform.eulerAngles.y, 0);
+	        //// ------  Movement  ---------- /////////
+	        targetSpeed.x = Input.GetAxis("Horizontal");
+	        targetSpeed.y = Input.GetAxis("Vertical");
+
+	        if (targetSpeed.sqrMagnitude > 1)
+	            targetSpeed.Normalize();
+
+	        targetSpeed *= speed*Time.deltaTime;
+
+	        currentSpeed.x = Accelerate(currentSpeed.x, targetSpeed.x, acceleration);
+	        currentSpeed.y = Accelerate(currentSpeed.y, targetSpeed.y, acceleration);
+	        transform.Translate(new Vector3(currentSpeed.x, 0, currentSpeed.y));
+
+            // Update in network
+            if (Vector3.Distance(transform.position, lastPosition) >= 0.1f)
+            {
+                // Capture the player's position before the RPC is fired off and use this 
+                // to determine if the player has moved in the if statement above.
+                lastPosition = transform.position;
+                networkView.RPC("UpdateMovement", RPCMode.OthersBuffered, transform.position, transform.rotation);
+            }
+
+	        //---------------------------------------------------
+
+
+	        //// --------- Head Look At Mouse Cursor ------ /////////
+	        ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+	        RaycastHit hit;
+
+	        if (Physics.Raycast(ray, out hit))
+	        {
+	            DesiredLookAt = Quaternion.LookRotation(hit.point - transform.position);
+	            head.transform.rotation = Quaternion.Lerp(head.transform.rotation, DesiredLookAt, lookSpeed*Time.deltaTime);
+	            head.transform.eulerAngles = new Vector3(0, head.transform.eulerAngles.y, 0);
+	        }
+
+            // Update in network
+	        if (Quaternion.Angle(head.transform.rotation, lastRotation) >= 1)
+	        {
+                lastRotation = head.transform.rotation;
+                networkView.RPC("UpdateHeadRotation", RPCMode.OthersBuffered, head.transform.rotation);
+	        }
+	            
+	        //---------------------------------------------
 	    }
-        //---------------------------------------------
-        
+	    else
+	    {
+	        enabled = false;
+	    }
 	}
     
     // Increments the speed towards desired speed by acceleration amount
@@ -73,5 +100,17 @@ public class Player : MonoBehaviour
         }
     }
 
+    [RPC]
+    void UpdateHeadRotation(Quaternion newRot)
+    {
+        head.transform.rotation = newRot;
+    }
 
+
+    [RPC]
+    void UpdateMovement(Vector3 newPos, Quaternion newRot)
+    {
+        transform.position = newPos;
+        transform.rotation = newRot;
+    }
 }

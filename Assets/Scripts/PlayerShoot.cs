@@ -14,26 +14,33 @@ public class PlayerShoot : MonoBehaviour {
 	
 	void Update () 
     {
-	    // To delay the guns randomly
-        if (Input.GetMouseButtonDown(0))
+	    if (networkView.isMine)
 	    {
-	        for (int i = 0; i < gunSpots.Length; i++)
+	        // To delay the guns randomly
+	        if (Input.GetMouseButtonDown(0))
 	        {
-	            float tempRandom = Random.Range(0f, 1.2f);
-	            float n = i + tempRandom;
-	            nextShootTime[i] = Time.time + n/10;
+	            for (int i = 0; i < gunSpots.Length; i++)
+	            {
+	                float tempRandom = Random.Range(0f, 1.2f);
+	                float n = i + tempRandom;
+	                nextShootTime[i] = Time.time + n/10;
+	            }
 	        }
-        }
-        
-        // Keeps shooting as long as mouse is pressed.
-        if (Input.GetMouseButton(0))
-        {
-            Shoot(gunSpots[0], 0);
-            Shoot(gunSpots[1], 1);
-            Shoot(gunSpots[2], 2);
-            Shoot(gunSpots[3], 3);
-        }
-	}
+
+	        // Keeps shooting as long as mouse is pressed.
+	        if (Input.GetMouseButton(0))
+	        {
+	            Shoot(gunSpots[0], 0);
+	            Shoot(gunSpots[1], 1);
+	            Shoot(gunSpots[2], 2);
+	            Shoot(gunSpots[3], 3);
+	        }
+	    }
+	    else
+	    {
+	        enabled = false;
+	    }
+    }
     
     // Takes a transform node and gun index and shoots it.
     void Shoot (Transform spot, int index)

@@ -18,9 +18,11 @@ public class NetworkManager : MonoBehaviour
     private bool useNAT = false;
     private int numberOfPlayers = 2;
 
-    public string playerName;
-    public string serverName;
-    public string serverNameForClient;
+    private string playerName;
+    private string serverName;
+    private string serverNameForClient;
+
+    public GameObject player;
 
     //private bool iWantToSetUpAServer = false;
     //private bool iWantToConnectToAServer = false;
@@ -44,6 +46,13 @@ public class NetworkManager : MonoBehaviour
         // Take the serverName input to the registry for later recall.
         serverName = serverNameInput.text;
         PlayerPrefs.SetString("serverName", serverName);
+
+        Application.LoadLevel(1);
+    }
+
+    void OnLevelWasLoaded()
+    {
+        networkView.RPC("SpawnPlayer", RPCMode.AllBuffered);
     }
 
     // This function is accessed by "Join" button in Join Game menu.
@@ -63,7 +72,15 @@ public class NetworkManager : MonoBehaviour
 
         PlayerPrefs.SetString("playerName", playerName);
 
-        // Actually connect to the server.
+        // Actually connect to the server and load level1.
         Network.Connect(connectToIP, connectionPort);
+        Application.LoadLevel(1);
+
+    }
+
+    [RPC]
+    void SpawnPlayer()
+    {
+        Network.Instantiate(player, Vector3.zero, Quaternion.identity, 0);
     }
 }
