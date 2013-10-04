@@ -5,7 +5,7 @@ using System.Collections;
 /// 
 /// This script controls networking.
 /// </summary>
-public class NetworkManager : MonoBehaviour
+public class NetworkManager : uLink.MonoBehaviour
 {
 
     public UILabel serverNameInput;
@@ -20,7 +20,7 @@ public class NetworkManager : MonoBehaviour
 
     private string playerName;
     private string serverName;
-    private string serverNameForClient;
+    private string gameName;
 
     public GameObject player;
 
@@ -34,14 +34,20 @@ public class NetworkManager : MonoBehaviour
 	
 	void Update () 
     {
-	
+        
 	}
 
     // This function is accessed by the "Create" button in Host a Game menu.
     void StartServer()
     {
+        uLink.MasterServer.ipAddress = "127.0.0.1";
+        uLink.MasterServer.port = 23466;
         // Start the server
-        Network.InitializeServer(numberOfPlayers, connectionPort, useNAT);
+        uLink.Network.InitializeServer(numberOfPlayers, connectionPort);
+
+        // Register the server to the Master Server.
+        
+        uLink.MasterServer.RegisterHost("UniqueGame", "gameisteAmk", "coopDeneme");
 
         // Take the serverName input to the registry for later recall.
         serverName = serverNameInput.text;
@@ -50,14 +56,27 @@ public class NetworkManager : MonoBehaviour
         Application.LoadLevel(1);
     }
 
+    void uLink_OnMasterServerEvent(uLink.MasterServerEvent mse)
+    {
+        if(mse == uLink.MasterServerEvent.RegistrationSucceeded)
+            Debug.Log("Server connected");
+
+        
+    }
+
+
     void OnLevelWasLoaded()
     {
-        networkView.RPC("SpawnPlayer", RPCMode.AllBuffered);
+        //networkView.RPC("SpawnPlayer", uLink.RPCMode.AllBuffered);
+        uLink.Network.Instantiate(player, Vector3.zero, Quaternion.identity, 0);
+
     }
+
 
     // This function is accessed by "Join" button in Join Game menu.
     void JoinGame()
     {
+        /*
         // Get the inputs to variables and also to registry
         connectToIP = IPAdressInput.text;
         PlayerPrefs.SetString("IPAddress", connectToIP);
@@ -71,16 +90,29 @@ public class NetworkManager : MonoBehaviour
             playerName = "Player";
 
         PlayerPrefs.SetString("playerName", playerName);
-
+        */
         // Actually connect to the server and load level1.
-        Network.Connect(connectToIP, connectionPort);
+
+        // Get the list of servers
+
+        
+
+
+        //Network.Connect(connectToIP, connectionPort);
         Application.LoadLevel(1);
 
     }
 
+
+
+    void SearchGames()
+    {
+        
+    }
+    /*
     [RPC]
     void SpawnPlayer()
     {
-        Network.Instantiate(player, Vector3.zero, Quaternion.identity, 0);
-    }
+        uLink.Network.Instantiate(player, Vector3.zero, Quaternion.identity, 0);
+    }*/
 }

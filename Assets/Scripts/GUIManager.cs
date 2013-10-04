@@ -1,13 +1,14 @@
 using UnityEngine;
 using System.Collections;
 
-public class GUIManager : MonoBehaviour
+public class GUIManager : uLink.MonoBehaviour
 {
     // TextFields in the menu
     public UILabel serverNameText;
     public UILabel IPAddressText;
     public UILabel portText;
     public UILabel playerNameText;
+    public UILabel joinButtonText;
 
     public UITweener HostGameTween;
     public UITweener JoinGameTween;
@@ -15,6 +16,7 @@ public class GUIManager : MonoBehaviour
     
     public GameObject[] menuPanels;
 
+    
     void Start () 
     {
 	    // Load Main Menu at start
@@ -30,18 +32,25 @@ public class GUIManager : MonoBehaviour
 	
 	void Update () 
     {
-	    
+        
+        if (uLink.MasterServer.PollHostList().Length != 0)
+        {
+            uLink.HostData[] hostData = uLink.MasterServer.PollHostList(); 
+            int x = hostData.Length;
+            Debug.Log(x);
+            Debug.Log(hostData[0]);
+            // List the servers at the menu.
+            foreach (uLink.HostData n in hostData)
+            {
+                string line = n.gameName + " " + n.connectedPlayers + " / " + n.playerLimit;
+                //joinButtonText.text = line;
+            }
+        }
 	}
 
 
     
     // Button functions for menu transitions
-    void MainMenu()
-    {
-        //reset();
-        //menuPanels[0].active = true;
-    }
-
     // Host A Game button
     void HostGame()
     {
@@ -50,6 +59,7 @@ public class GUIManager : MonoBehaviour
         MainMenuTween.Play(true);
     }
 
+    // Back button
     void BackToMainMenu()
     {
         MainMenuTween.Play(false);
@@ -61,9 +71,15 @@ public class GUIManager : MonoBehaviour
         reset();
         menuPanels[1].active = false;
         MainMenuTween.Play(true);
-    }
 
-    // Sets all panel.active to true.
+        // Server List
+        uLink.MasterServer.ClearHostList();
+        uLink.MasterServer.RequestHostList("UniqueGame");
+        
+        
+    }
+    
+   // Sets all panel.active to true.
     void reset()
     {
         for (int i = 0; i < menuPanels.Length; i++)

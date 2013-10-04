@@ -106,11 +106,13 @@ public class Player : MonoBehaviour
         head.transform.rotation = newRot;
     }
 
-
+    
     [RPC]
     void UpdateMovement(Vector3 newPos, Quaternion newRot)
     {
-        transform.position = newPos;
-        transform.rotation = newRot;
+        //transform.position = newPos;
+        //transform.rotation = newRot;
+        transform.position = Vector3.Lerp(transform.position, newPos, 0.05f);
+        transform.rotation = Quaternion.Lerp(transform.rotation, newRot, 0.05f);
     }
 }
