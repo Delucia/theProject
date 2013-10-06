@@ -1,15 +1,10 @@
 using UnityEngine;
 using System.Collections;
 
-public class GUIManager : uLink.MonoBehaviour
+public class GUIManager : Photon.MonoBehaviour
 {
-    // TextFields in the menu
-    public UILabel serverNameText;
-    public UILabel IPAddressText;
-    public UILabel portText;
-    public UILabel playerNameText;
-    public UILabel joinButtonText;
 
+    // Tweemers in the menu
     public UITweener HostGameTween;
     public UITweener JoinGameTween;
     public UITweener MainMenuTween;
@@ -19,37 +14,15 @@ public class GUIManager : uLink.MonoBehaviour
     
     void Start () 
     {
-	    // Load Main Menu at start
-        //reset();
-        //MainMenu();
 
-        // Load last used inputs from registry.
-        serverNameText.text = PlayerPrefs.GetString("serverName");
-        IPAddressText.text = PlayerPrefs.GetString("IPAddress");
-        portText.text = PlayerPrefs.GetString("portNumber");
-        playerNameText.text = PlayerPrefs.GetString("playerName");
 	}
-	
-	void Update () 
+
+    private void Update()
     {
-        
-        if (uLink.MasterServer.PollHostList().Length != 0)
-        {
-            uLink.HostData[] hostData = uLink.MasterServer.PollHostList(); 
-            int x = hostData.Length;
-            Debug.Log(x);
-            Debug.Log(hostData[0]);
-            // List the servers at the menu.
-            foreach (uLink.HostData n in hostData)
-            {
-                string line = n.gameName + " " + n.connectedPlayers + " / " + n.playerLimit;
-                //joinButtonText.text = line;
-            }
-        }
-	}
 
+    }
 
-    
+	
     // Button functions for menu transitions
     // Host A Game button
     void HostGame()
@@ -57,6 +30,10 @@ public class GUIManager : uLink.MonoBehaviour
         reset();
         menuPanels[2].active = false;
         MainMenuTween.Play(true);
+
+        // Change to state I want to create a room so that the CreateRoom function works.
+        Connection network = GetComponent("Connection") as Connection;
+        network.iWantToCreateRoom = true;
     }
 
     // Back button
@@ -71,12 +48,10 @@ public class GUIManager : uLink.MonoBehaviour
         reset();
         menuPanels[1].active = false;
         MainMenuTween.Play(true);
-
-        // Server List
-        uLink.MasterServer.ClearHostList();
-        uLink.MasterServer.RequestHostList("UniqueGame");
         
-        
+        // Get the list of available rooms when hit Join a Game button. We will then update the list on Gui later.
+        Connection network = GetComponent("Connection") as Connection;
+        network.GetRoomList();
     }
     
    // Sets all panel.active to true.
